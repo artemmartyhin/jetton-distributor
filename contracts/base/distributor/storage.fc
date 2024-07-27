@@ -1,0 +1,26 @@
+
+#include "package.fc";
+
+global int storage::init?;
+global slice storage::owner_address;
+global slice storage::jetton_minter_address;
+global slice storage::jetton_wallet_address;
+
+() storage::load_data() impure inline {
+    slice ds = get_data().begin_parse();
+
+    if (ds.slice_bits() > 0) {
+
+        storage::init? = ds~load_uint(1);
+        storage::owner_address = ds~load_msg_addr();
+        storage::jetton_minter_address = ds~load_msg_addr();
+        storage::jetton_wallet_address = ds~load_msg_addr();  
+    }
+    ds.end_parse();
+}
+
+() storage::save_data() impure {
+    set_data(
+        package::pack_distributor_data(storage::init?, storage::owner_address, storage::jetton_minter_address, storage::jetton_wallet_address)
+    );
+}

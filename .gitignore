@@ -1,0 +1,17 @@
+node_modules
+temp
+build
+dist
+.DS_Store
+
+app.log
+output.log
+
+tests/JettonWallet.spec.ts
+tests/JettonUtils.ts
+
+
+
+.config
+
+.env

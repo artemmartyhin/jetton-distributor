@@ -1,0 +1,52 @@
+{- EXCEPTIONS -}
+
+;; Standalone
+const int exc::out_of_gas = 13; ;;
+const int exc::not_enough_gas = 40;
+const int exc::unsupported_op = 0xffff; ;;
+
+
+;; Jetton
+const int exc::incorrect_sender = 50; ;;
+const int exc::transfer_not_allowed = 51;
+const int exc::only_owner_can_transfer = 52;
+
+
+{- CONSTANTS -}
+const int WORKCHAIN = 0;
+
+
+{- GAS -}
+
+const int PROVIDE_ADDR_GAS = 20000;
+const int JETTON_TRANSFER_GAS = 55000;
+const int MIN_STORAGE_GAS = 500000000;
+const int DISTRIBUTE_GAS = 10000000;
+
+
+{- OP-CODES -}
+
+;; Common
+const int op::excesses               = 0xd53276db;
+
+;; Jettons
+const int op::transfer_jetton        = 0xf8a7ea5; 
+const int op::transfer_notification  = 0x7362d09c; 
+const int op::provide_wallet_address = 0x2c76b973; 
+const int op::take_wallet_address    = 0xd1735400; 
+const int op::internal_transfer      = 0x178d4519;
+const int op::set_owner_address      = 0x1f7b3b2d;
+const int op::rescue_jettons         = 0x1f7b3b2e;
+
+
+{- MESSAGE MODES -}
+
+const int mode::simple                  = 0;
+const int mode::carry_remaining_gas     = 64;
+const int mode::carry_remaining_balance = 128;
+
+const int mode::pay_fees_separately     = 1;
+const int mode::ignore_errors           = 2;
+const int mode::bounce_on_fail          = 16;
+const int mode::selfdestruct_on_empty   = 32;
+

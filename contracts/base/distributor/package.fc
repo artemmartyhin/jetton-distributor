@@ -1,0 +1,14 @@
+
+
+cell package::pack_distributor_data(int init?, slice owner_address, slice jetton_minter_address, slice jetton_wallet_address) {
+    return begin_cell()
+                .store_uint(init?, 1)
+                .store_slice(owner_address)
+                .store_slice(jetton_minter_address)
+                .store_slice(jetton_wallet_address)
+            .end_cell();
+}
+
+
+
+

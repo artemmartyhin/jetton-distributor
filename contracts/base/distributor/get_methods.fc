@@ -1,0 +1,12 @@
+#include "package.fc";
+#include "storage.fc";
+
+cell get_distributor_data() method_id { 
+    storage::load_data();
+    return begin_cell()
+                .store_uint(storage::init?, 1)
+                .store_slice(storage::owner_address) 
+                .store_slice(storage::jetton_minter_address)
+                .store_slice(storage::jetton_wallet_address)
+            .end_cell();
+}
