@@ -14,6 +14,7 @@ const int exc::only_owner_can_transfer = 52;
 
 {- CONSTANTS -}
 const int WORKCHAIN = 0;
+const int PRECISION = 10000;
 
 
 {- GAS -}

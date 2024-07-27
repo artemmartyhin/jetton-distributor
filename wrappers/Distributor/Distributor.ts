@@ -45,6 +45,13 @@ export class Distributor implements Contract {
             .endCell();
     }
 
+    static userOptionToCell(usersCell: Cell, isPercent: boolean) {
+        return beginCell()
+            .storeUint(isPercent ? 1 : 0, 1)
+            .storeRef(usersCell)
+            .endCell();
+    }
+
     static distConfigToCell(config: DistributorConfig): Cell {
         return beginCell()
             .storeUint(config.init, 1)

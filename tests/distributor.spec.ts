@@ -27,7 +27,7 @@ describe('IDO ', () => {
     let blockchain: Blockchain;
 
     let owner: SandboxContract<TreasuryContract>;
-    let users: SandboxContract<TreasuryContract>[] = [];
+    const users: SandboxContract<TreasuryContract>[] = [];
 
     let jettonWallet: (address: Address) => Promise<SandboxContract<JettonWallet>>;
 
@@ -71,12 +71,12 @@ describe('IDO ', () => {
 
         for (let i = 0; i < users.length; i++) {
             await minter.sendMint(owner.getSender(), users[i].address, BigInt(0), toNano('0.05'), toNano('1'));
-        };
+        }
 
         distributor = openContractDistFactory(blockchain, owner.address, codes.distributor, minter.address);
 
         const result = await distributor.sendDeploy(owner.getSender(), toNano('1'));
-        
+
         expect(result.transactions).toHaveTransaction({
             from: undefined,
             to: owner.address,
@@ -88,7 +88,7 @@ describe('IDO ', () => {
             to: distributor.address,
             success: true,
         });
-    
+
         expect(result.transactions).toHaveTransaction({
             from: distributor.address,
             to: minter.address,
@@ -102,7 +102,7 @@ describe('IDO ', () => {
         });
     });
 
-    it('Distribution 10 users', async () => {
+    it('Distribution 10 users by value', async () => {
         const wallets = await Promise.all(users.map((user) => jettonWallet(user.address)));
 
         const owner_wallet = await jettonWallet(owner.address);
@@ -120,6 +120,8 @@ describe('IDO ', () => {
                 payload,
             );
         }
+
+        payload = Distributor.userOptionToCell(payload, false);
 
         const res = await owner_wallet.sendTransfer(
             owner.getSender(),
@@ -170,11 +172,87 @@ describe('IDO ', () => {
                 to: wallets[i].address,
                 success: true,
             });
-            
+
             const balance = await wallets[i].getJettonBalance();
 
             expect(balance).toEqual(toNano('1'));
+        }
+    });
 
+    it('Distribution 10 users by value', async () => {
+        const wallets = await Promise.all(users.map((user) => jettonWallet(user.address)));
+
+        const owner_wallet = await jettonWallet(owner.address);
+
+        const distributor_wallet = await jettonWallet(distributor.address);
+
+        let payload = Distributor.userConfigToCell(
+            { user_address: users[0].address, jetton_amount: BigInt(1000) },
+            beginCell().endCell(),
+        );
+
+        for (let i = 1; i < users.length; i++) {
+            payload = Distributor.userConfigToCell(
+                { user_address: users[i].address, jetton_amount: BigInt(1000) },
+                payload,
+            );
+        }
+
+        payload = Distributor.userOptionToCell(payload, true);
+
+        const res = await owner_wallet.sendTransfer(
+            owner.getSender(),
+            toNano('10000'),
+            INITIAL_JETTON_BALANCE,
+            distributor.address,
+            distributor.address,
+            beginCell().endCell(),
+            toNano('5000'),
+            payload,
+        );
+
+        expect(res.transactions).toHaveLength(45);
+
+        expect(res.transactions).toHaveTransaction({
+            from: undefined,
+            to: owner.address,
+            success: true,
+        });
+
+        expect(res.transactions).toHaveTransaction({
+            from: owner.address,
+            to: owner_wallet.address,
+            success: true,
+        });
+
+        expect(res.transactions).toHaveTransaction({
+            from: owner_wallet.address,
+            to: distributor_wallet.address,
+            success: true,
+        });
+
+        expect(res.transactions).toHaveTransaction({
+            from: distributor_wallet.address,
+            to: distributor.address,
+            success: true,
+        });
+
+        expect(res.transactions).toHaveTransaction({
+            from: distributor.address,
+            to: distributor_wallet.address,
+            success: true,
+        });
+
+        for (let i = 0; i < users.length; i++) {
+            expect(res.transactions).toHaveTransaction({
+                from: distributor_wallet.address,
+                to: wallets[i].address,
+                success: true,
+            });
+
+            const balance = await wallets[i].getJettonBalance();
+
+            expect(balance).toEqual(INITIAL_JETTON_BALANCE / BigInt(10));
         }
     });
 });

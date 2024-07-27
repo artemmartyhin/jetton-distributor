@@ -55,22 +55,34 @@
         return(); 
       } 
 
-
       slice node = in_msg_body~load_ref().begin_parse();
+      int percentage? = node~load_uint(1);
+      node = node~load_ref().begin_parse();
+
+      int total = 0;
       while(slice_empty?(node) == 0) {
         
         slice to_address = node~load_msg_addr();
-        int to_amount = node~load_coins();
+        int value = node~load_coins();
         node = node~load_ref().begin_parse();
-        if(to_amount  > transferred_jettons){
-          return();
+        if(percentage?){
+          total += value;
+          value = transferred_jettons * value / PRECISION;
+          
+          if(total > PRECISION){
+            return();
+          }
         }
-
-        transferred_jettons -= to_amount;
-
+        else {
+          total += value;
+          if(total  > transferred_jettons){
+            return();
+          }
+        }
+  
         send_jettons(
           query_id,
-          to_amount, 
+          value, 
           to_address,
           to_address,
           storage::jetton_wallet_address,
